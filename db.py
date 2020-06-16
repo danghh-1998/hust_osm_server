@@ -108,11 +108,15 @@ class Point(db.Model):
             db.session.add(point)
             db.session.commit()
 
+    @staticmethod
+    def create_point(longitude, latitude):
+        return Point(geo=db.session.query(functions.ST_GeomFromText(f"POINT({longitude} {latitude})")).first()[0])
+
     def get_distance_to_object(self, obj):
         return db.session.query(functions.ST_Distance_Sphere(self.geo, obj.geo)).first()[0]
 
     def __str__(self):
-        return self.id_
+        return str(self.id_)
 
 
 class Way(db.Model):
@@ -121,6 +125,10 @@ class Way(db.Model):
     name = db.Column(db.String)
     geo = db.Column(Geometry('LINESTRING'))
     points = db.relationship('Point', secondary=located_on, back_populates='ways')
+
+    @property
+    def center_point(self):
+        return self.points[int(len(self.points) / 2)]
 
     @staticmethod
     def create_ways(way_elements):
@@ -177,7 +185,7 @@ class Boundary(db.Model):
     geo = db.Column(Geometry('POLYGON'))
 
     @property
-    def center_geo(self):
+    def center_point(self):
         return Point(geo=db.session.query(functions.ST_Centroid(self.geo)).first()[0])
 
     @staticmethod
