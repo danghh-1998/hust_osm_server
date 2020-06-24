@@ -232,3 +232,7 @@ def osm2postgis():
     Point.create_points(node_elements=node_elements, type_keys=type_keys, name_keys=name_keys)
     Way.create_ways(way_elements=way_elements)
     Boundary.create_boundaries(way_elements=way_elements)
+
+
+if __name__ == '__main__':
+    osm2postgis()
