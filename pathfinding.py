@@ -1,3 +1,5 @@
+from math import sqrt
+
 from db import Point, Way, Boundary
 
 
@@ -83,14 +85,21 @@ def find_graph_point(id_):
 def find_path_between_objects(source_id, dest_id):
     start_point = find_graph_point(id_=source_id)
     end_point = find_graph_point(id_=dest_id)
+    path = find_path(start_point=start_point, end_point=end_point)
+    if sqrt((start_point.longitude - path[1][0]) ** 2 + (start_point.latitude - path[1][1]) ** 2) > sqrt(
+            (path[0][0] - path[1][0]) ** 2 + (path[0][1] - path[1][1]) ** 2):
+        path.insert(0, [start_point.longitude, start_point.latitude])
+    else:
+        path[0] = [start_point.longitude, start_point.latitude]
     return find_path(start_point=start_point, end_point=end_point)
 
 
 def find_from_location(longitude, latitude, dest_id):
     start_point = Point.create_point(longitude=longitude, latitude=latitude).start_point
-    print(start_point.geo)
     end_point = find_graph_point(id_=dest_id)
-    return find_path(start_point=start_point, end_point=end_point)
+    path = find_path(start_point=start_point, end_point=end_point)
+    path.insert(0, [longitude, latitude])
+    return path
 
 
 if __name__ == '__main__':
